@@ -11,7 +11,7 @@ _start:
     
     # exit syscall
     mov $60, %rax                # syscall code for exit
-    mov $0, %rdi                 # return code
+    xor %rdi, %rdi              # return code is 0
     syscall
 
 hello_world:
