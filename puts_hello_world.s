@@ -1,3 +1,4 @@
+# -nostdlib
 .global main
     
 .text
