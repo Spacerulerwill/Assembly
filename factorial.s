@@ -5,7 +5,7 @@
 
 .text
 main:
-    mov $number, %rcx       # rcx (1 byte) will store the countdown
+    mov $number, %rcx       # rcx will store the countdown
     dec %rcx                # rcx starts at number - 1 as rax will already to be set to number
     mov $number, %rax       # move number to rax to store current
 multiply:
