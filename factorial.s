@@ -1,9 +1,9 @@
+.text
 .global main
     
 # number to find factorial of
 .set number, 13
 
-.text
 main:
     mov $number, %rcx       # rcx will store the countdown
     dec %rcx                # rcx starts at number - 1 as rax will already to be set to number
@@ -26,5 +26,6 @@ finish:
     pop %rbx                # pop rbx back    
 
     ret
+.data
 format:
     .asciz "%ld\n"

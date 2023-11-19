@@ -1,6 +1,6 @@
-.global main
-    
 .text
+.global main
+
 main:
     push %rbx                    # we have to save this since we use it
 
@@ -37,5 +37,6 @@ print:
     # Pop rbx off stack and return!
     pop %rbx 
     ret
+.data
 format:
     .asciz "%ld\n"
