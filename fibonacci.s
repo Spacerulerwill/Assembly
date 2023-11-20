@@ -1,3 +1,9 @@
+# Build:
+# gcc fibonacci.s -o fib -static
+# Run:
+# ./fib
+
+
 .text
 .global main
 

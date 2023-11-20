@@ -1,3 +1,8 @@
+# Build:
+# gcc puts_hello_world.s -o hello_world -static
+# Run:
+# ./hello_world
+
 .text
 .global main
 main:

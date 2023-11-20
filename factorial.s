@@ -1,3 +1,9 @@
+# Build:
+# gcc factorial.s -o factorial -static
+# Run:
+# ./factorial
+
+
 .text
 .global main
     

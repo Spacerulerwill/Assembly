@@ -1,6 +1,12 @@
 # very inefficient of way of performing unsigned integer divison
 # by using repeated subtraction
 
+# Build:
+# gcc integer_division.s -o div -static
+# Run:
+# ./div
+
+
 .text
 .global main
 

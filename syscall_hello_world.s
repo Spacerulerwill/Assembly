@@ -1,4 +1,8 @@
-# -nostdlib
+# Build:
+# gcc syscall_hello_world.s -o hello_world -static -nostdlib
+# Run:
+# ./hello_world
+
 .text
 .global _start
 
@@ -11,7 +15,7 @@ _start:
     syscall
     
     # exit syscall
-    mov $60, %rax                # syscall code for exit
+    mov $60, %rax               # syscall code for exit
     xor %rdi, %rdi              # return code is 0
     syscall
 .data
