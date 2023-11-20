@@ -4,7 +4,7 @@
 .text
 .global main
 
-.set dividend, 3               # number to be divided
+.set dividend, 3                # number to be divided
 .set divisor, 7                 # number to divide by
 
 main:
