@@ -9,13 +9,15 @@
 
 main:
     mov $dividend, %rax         # we store the dividend in rax
-    xor %rcx, %rcx              # we store the qoutient in rcx
+    xor %rcx, %rcx              # we store the qoutient in rcx - initially zero
+                                # early exit - if divisor greater than dividend result will be 0 remainder dividend
+    cmp $divisor, %rax          # if dividend less than divisor 
+    jl finish                   # finish early
 subtract:
-    cmp $divisor, %rax          # is rax less than the divisor?
-    jl finish                   # if yes, rax is the remainder and goto finish
-    sub $divisor, %rax          # otherwise subtract divisor from dividend
-    inc %rcx                    # increase rcx as a subtraction has taken place
-    jmp subtract                # go back to subtract
+    sub $divisor, %rax          # subtract divisor from rax    
+    inc %rcx                    # increase quotient
+    cmp $divisor, %rax          # compare rax and divisor
+    jge subtract                # if rax is greater than divisor, subtract again
 finish:
     mov $format, %rdi           # mov format string into rdi
     mov %rcx, %rsi              # mov quotient into rsi

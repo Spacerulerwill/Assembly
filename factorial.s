@@ -8,6 +8,8 @@ main:
     mov $number, %rcx       # rcx will store the countdown
     dec %rcx                # rcx starts at number - 1 as rax will already to be set to number
     mov $number, %rax       # move number to rax to store current
+
+    
 multiply:
     cmp $1, %rcx            # is counter at 1?
     je finish               # if it then we are done
