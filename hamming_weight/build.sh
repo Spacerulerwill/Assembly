@@ -1,0 +1,1 @@
+gcc hamming_weight.c hamming_weight.s -o hamming_weight -static
