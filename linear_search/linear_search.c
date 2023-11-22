@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-int64_t linear_search(int64_t* arr, int64_t size, int64_t elem);
+uint64_t linear_search(int64_t* arr, int64_t size, int64_t elem);
 
 int main() {
     int64_t arr[5] = {1,2,3,4,5};
