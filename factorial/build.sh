@@ -1,0 +1,1 @@
+gcc factorial.c factorial.s -o factorial -static

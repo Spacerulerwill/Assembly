@@ -1,11 +1,5 @@
-# Build
-# gcc linear_search.c linear_search.s -o linear_search -static
-# Run
-# ./linear_search
-
 .text
-
-.global  linear_search
+.global linear_search
 linear_search:
     xor %rax, %rax              # rax is the current index counter
     jmp loop_check              # jump to first execution of the loop check
