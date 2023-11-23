@@ -30,9 +30,9 @@ finish:
     mov %rax, %rdx              # mov remainder into rdx
     xor %rax, %rax              # xor rax because of variadic args in printf
 
-    push %rbx                   # push rbx because you have to when calling functions
-    call printf                 # call prinft function
-    pop %rbx                    # pop rbx off stack
+    sub $8, %rsp                # sub 8 from %rsp to align the stack to 16 byte boundray
+    call printf                 # call printf function
+    add $8, %rsp                # add 8 from %rsp to get stack pointer to original position
 
     ret
 .data
