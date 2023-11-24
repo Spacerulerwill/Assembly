@@ -1,16 +1,17 @@
 .text
 
-# rcx - low
-# rax - mid
-# rsi - array len
+# register usage
+# rax - stores current mid
+# rcx - stores the low value
+# rsi - stores the high value
+# r8  - used to save array length. Not sure if I should use stack or this extra register to save it.
 # rdi - array pointer
-# rdx - elem to find
 
 .global binary_search
 binary_search:
     xor %rax, %rax                  # mid starts at 0
     xor %rcx, %rcx                  # low starst at 0
-    mov %rsi, %r8                   # save the array length so we can return it if not found
+    mov %rsi, %r8                   # save the array length so we can return it if not element not found
     dec %rsi                        # high starts at array length minus one
     jmp loop_condition              # jump to loop condition to start while loop (while low <= high)
 loop_body:               
@@ -33,5 +34,6 @@ greater:
 loop_condition:                         
     cmp %rsi, %rcx                  # compare low (rcx) and high (rsi)   
     jbe loop_body                   # if low <= high (%rcx <= %rsi) jump back to loop body 
-    mov %r8, %rax
-    ret                             # if we get here then the element has not been found, return value in %rax
+                                    # if we get to here the element was not present in the array
+    mov %r8, %rax                   # copy the array length into rax (length of array is an impossible index)
+    ret                             # return
