@@ -7,7 +7,9 @@
 .set rows, 10                                                               # rows in the grid
 .set columns, 20                                                            # columns in the grid
 .set total, (columns + 1) * rows                                            # total bytes for byte array. 1 byte extra needed per row for \n
-buffer: .fill total, 1, 111                                                 # byte array filled with o
+.set live, 111
+.set dead, 32
+buffer: .fill total, 1, live                                                 # byte array filled with o
 .set new_line, 10                                                           # ascii code of newline char
 
 .text
@@ -42,11 +44,21 @@ _start:
         xor %rcx,%rcx                                                       # set counter to 0
         cell_loop:   
                                                                             # if the cell is a newline, skip this iteration
-            mov $new_line, %rax                                             # move new_line into rax
-            cmp %rax, (%rbx)                                                # compare rax and value being pointed to in the array in %rbx
+            mov $new_line, %al                                             # move new_line into rax
+            cmp %al, (%rbx)                                                # compare rax and value being pointed to in the array in %rbx
             je next                                                         # if its a newline we can skip to the next loop
-            # otherwise gather live and dead neighbor count
 
+            # simple flip if alive
+            mov $live, %al
+            cmp %al, (%rbx)
+            je set_dead
+
+            set_living:
+                mov %al, (%rbx)
+                jmp next
+            set_dead:
+                mov $dead, %al
+                mov %al, (%rbx)
         next:                                   
             inc %rcx                                                        # increase counter
             inc %rbx                                                        # go to next char
