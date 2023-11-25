@@ -6,47 +6,38 @@
 .data
 .set rows, 10
 .set columns, 20
-.set total, columns * rows
+.set total, (columns + 1) * rows 
 buffer: .fill total, 1, 65
-new_line: .ascii "\n"
-erase: .ascii "\033[2J"
+.set new_line, 10
 
 .text
 .global _start
 
 _start:
-    call print_grid
+    # first step is to add new lines to our char array array (last column of every row)
+    mov $new_line, %al
+    mov $buffer, %rbx
+    dec %rbx
+
+    xor %rcx,%rcx
+    loop:  
+        add $columns, %rbx
+        inc %rbx
+        mov %al, (%rbx)
+
+        inc %rcx      
+        cmp $rows, %rcx    
+        jl loop   
+
+    # print the grid
+    mov $1, %rax
+    mov $1, %rdi
+    mov $buffer, %rsi
+    mov $total, %rdx
+    syscall
+    ret
 
     # exit syscall
     mov $60, %rax                           # syscall code for exit
     xor %rdi, %rdi                          # return code is 0
-    syscall
-
-print_grid:
-    mov $buffer, %rbx                       # move buffer pointer to rbx
-    xor %rcx,%rcx                           # loop counter in rcx
-
-    loop:                                   # loop body
-        push %rcx                           # preserve value of rcx and syscalls will clobber its value
-
-        # write line
-        mov $1, %rax                        
-        mov $1, %rdi
-        mov %rbx, %rsi
-        mov $columns, %rdx
-        syscall
-        
-        # write newline char
-        mov $1, %rax
-        mov $1, %rdi
-        mov $new_line, %rsi
-        mov $1, %rdx
-        syscall
-
-        pop %rcx                            # restore rcx's value
-
-        inc %rcx                            # increment rcx
-        add $columns, %rbx                  # move buffer pointer along by $columns
-        cmp $rows, %rcx                     # compare number of rows and loop counter
-        jl loop                             # if less, loop again
-    ret
+    syscall   
