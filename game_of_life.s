@@ -9,6 +9,7 @@
 .set total, (columns + 1) * rows 
 buffer: .fill total, 1, 65
 .set new_line, 10
+clear_terminal: .ascii "\033[H\033[2J"
 
 .text
 .global _start
@@ -29,15 +30,28 @@ _start:
         cmp $rows, %rcx    
         jl loop   
 
-    # print the grid
-    mov $1, %rax
-    mov $1, %rdi
-    mov $buffer, %rsi
-    mov $total, %rdx
-    syscall
-    ret
+    mainloop:
+        # print the grid
+        mov $1, %rax
+        mov $1, %rdi
+        mov $buffer, %rsi
+        mov $total, %rdx
+        syscall
 
-    # exit syscall
-    mov $60, %rax                           # syscall code for exit
-    xor %rdi, %rdi                          # return code is 0
-    syscall   
+        # sleep for time before reprinting
+        pushq $0    # nanoseconds
+        pushq $1    # seconds
+
+        mov   %rsp, %rdi    # the time structure we just pushed
+        mov   $35, %rax     # SYS_nanosleep
+        xor   %esi, %esi    # rem=NULL, we don't care if we wake early
+        syscall
+
+        # clear terminal
+        mov $1, %rax
+        mov $1, %rdi
+        mov $clear_terminal, %rsi
+        mov $7, %rdx
+        syscall
+
+        jmp mainloop
