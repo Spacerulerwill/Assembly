@@ -5,7 +5,7 @@
 
 .data
 .set rows, 10
-.set columns, 20
+.set columns, 50
 .set total, (columns + 1) * rows
 .set live, 111
 .set dead, 32
@@ -65,12 +65,25 @@ _start:
         syscall
 
         # do cellular automata, reading from r13 and storing result in r12
-        xor %rcx,%rcx
-        cell_loop:      
+            xor %rbx, %rbx
+        second:
+            xor %rcx,%rcx
+        first:
+            # calculate index (y * cols + x)
+            mov %rcx, %rax
+            imul $columns, %rax
+            add %rbx, %rax
+
+            # copy addresses of element at index into r12 and r13
+            lea framebuffer1(,%rax,1), %r12
+            lea framebuffer2(,%rax,1), %r13
+
+            # skip if newline character
             mov $new_line, %al
             cmp %al, (%r13)
             je next
 
+            # flip cell
             mov $live, %al
             cmp %al, (%r13)
             je set_dead
@@ -81,15 +94,16 @@ _start:
             set_dead:
                 mov $dead, %al
                 mov %al, (%r12)
-        next:  
-            inc %r12
-            inc %r13                                  
-            inc %rcx    
-            cmp $total, %rcx
-            jl cell_loop
-        
-        sub $total, %r12
-        sub $total, %r13
+        next:
+            inc %rcx 
+            cmp $rows, %rcx
+            jbe first 
+            inc %rbx  
+            cmp $columns, %rbx
+            jb second
+
+        mov $framebuffer1, %r12
+        mov $framebuffer2, %r13
 
         # wait 1 second
         push $0
