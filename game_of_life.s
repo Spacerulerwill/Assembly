@@ -4,74 +4,103 @@
 # ./life
 
 .data
-.set rows, 10                                                               # rows in the grid
-.set columns, 20                                                            # columns in the grid
-.set total, (columns + 1) * rows                                            # total bytes for byte array. 1 byte extra needed per row for \n
+.set rows, 10
+.set columns, 20
+.set total, (columns + 1) * rows
 .set live, 111
 .set dead, 32
-buffer: .fill total, 1, live                                                 # byte array filled with o
-.set new_line, 10                                                           # ascii code of newline char
+.set new_line, 10
+framebuffer1: .fill total, 1, live
+framebuffer2: .fill total, 1, live
 
 .text
 .global _start
 
 _start:
-                                                                            # replace char at end of every row with newline
+    # setup 2 framebuffers by replacing last byte of each row to a newline
+    mov $framebuffer1, %r12
+    dec %r12
+    mov $framebuffer2, %r13                                        
+    dec %r13
+
     mov $new_line, %al                                                      
-    mov $buffer, %rbx                                                   
-    dec %rbx
+    xor %rcx,%rcx
+    loop:
+        add $columns, %r12
+        inc %r12
+        mov %al, (%r12)
 
-    xor %rcx,%rcx                                                           # loop counter
-    loop:                                                                   # loop body
-        add $columns, %rbx                                                  # move along $columns elements in byte array
-        inc %rbx                                                            # move one more for newline
-        mov %al, (%rbx)                                                     # move newline char into array
+        add $columns, %r13
+        inc %r13
+        mov %al, (%r13)
 
-        inc %rcx                                                            # increase counter
-        cmp $rows, %rcx                                                     # compare counter and number of rows    
-        jl loop                                                             # if counter < rows, loop again
+        inc %rcx
+        cmp $rows, %rcx   
+        jl loop
 
-    mainloop:                                                               # main game loop
-                                                                            # print the grid    
-        mov $1, %rax                                                        # sys_write syscall id
-        mov $1, %rdi                                                        # first argument - field descriptor: 1 - stdout
-        mov $buffer, %rsi                                                   # second argument - pointer to char array                                                                                                        
-        mov $total, %rdx                                                    # third argument - length of char array
-        syscall                                                             # invoke syscall
+    mov $framebuffer1, %r12
+    mov $framebuffer2, %r13
 
-                                                                            # iterate over every cell in our byte buffer and create the next generation
-        mov $buffer, %rbx                                                   # set %rbx to start of char buffer
-        xor %rcx,%rcx                                                       # set counter to 0
-        cell_loop:   
-                                                                            # if the cell is a newline, skip this iteration
-            mov $new_line, %al                                             # move new_line into rax
-            cmp %al, (%rbx)                                                # compare rax and value being pointed to in the array in %rbx
-            je next                                                         # if its a newline we can skip to the next loop
+    mainloop:
+        # make a copy of our framebuffer in r12 and store in r13
+        xor %rcx,%rcx
+        loop2:
+            mov (%r12), %al
+            mov %al, (%r13)
 
-            # simple flip if alive
+            inc %r12
+            inc %r13
+            inc %rcx
+            cmp $total, %rcx
+            jl loop2
+
+        sub $total, %r12
+        sub $total, %r13
+
+        # print framebuffer in r12
+        mov $1, %rax
+        mov $1, %rdi
+        mov %r12, %rsi                                                                                                     
+        mov $total, %rdx
+        syscall
+
+        # do cellular automata, reading from r13 and storing result in r12
+        xor %rcx,%rcx
+        cell_loop:      
+            mov $new_line, %al
+            cmp %al, (%r13)
+            je next
+
             mov $live, %al
-            cmp %al, (%rbx)
+            cmp %al, (%r13)
             je set_dead
 
             set_living:
-                mov %al, (%rbx)
+                mov %al, (%r12)
                 jmp next
             set_dead:
                 mov $dead, %al
-                mov %al, (%rbx)
-        next:                                   
-            inc %rcx                                                        # increase counter
-            inc %rbx                                                        # go to next char
-            cmp $total, %rcx                                                # cmp total and counter
-            jl cell_loop                                                    # if less, loop again
+                mov %al, (%r12)
+        next:  
+            inc %r12
+            inc %r13                                  
+            inc %rcx    
+            cmp $total, %rcx
+            jl cell_loop
+        
+        sub $total, %r12
+        sub $total, %r13
 
-                                                                            # push arguments onto stack for sys_nanosleep call
-        push $0                                                             # nanoseconds
-        push $1                                                             # seconds
+        # wait 1 second
+        push $0
+        push $1
 
-        mov   %rsp, %rdi                                                    # the time structure we just pushed
-        mov   $35, %rax                                                     # SYS_nanosleep syscall id
-        xor   %esi, %esi                                                    # rem=NULL, we don't care if we wake early
-        syscall                                                             # invoke syscall
+        mov   %rsp, %rdi
+        mov   $35, %rax
+        xor   %rsi, %rsi
+        syscall
 
-        jmp mainloop                                                        # loop again!
+        add $16, %rsp
+
+        # loop again
+        jmp mainloop
