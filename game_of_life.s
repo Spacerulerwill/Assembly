@@ -6,10 +6,9 @@
 .data
 .set rows, 10
 .set columns, 20
-.set total, (columns + 1) * rows 
-buffer: .fill total, 1, 65
+.set total, (columns + 1) * rows # we need one extra column for newline characters 
+buffer: .fill total, 1, 111
 .set new_line, 10
-clear_terminal: .ascii "\033[H\033[2J"
 
 .text
 .global _start
@@ -46,12 +45,5 @@ _start:
         mov   $35, %rax     # SYS_nanosleep
         xor   %esi, %esi    # rem=NULL, we don't care if we wake early
         syscall
-
-        # clear terminal
-        mov $1, %rax
-        mov $1, %rdi
-        mov $clear_terminal, %rsi
-        mov $7, %rdx
-        syscall
-
+        
         jmp mainloop
