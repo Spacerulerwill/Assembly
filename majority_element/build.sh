@@ -1,0 +1,1 @@
+gcc majority_element.c majority_element.s -o majority_element -static
